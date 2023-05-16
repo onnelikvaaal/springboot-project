@@ -1,8 +1,7 @@
 package ru.skypro.lessons.springboot.weblibrary.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
 import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
 import ru.skypro.lessons.springboot.weblibrary.service.EmployeeService;
 
@@ -41,5 +40,31 @@ public class EmployeeController {
     @GetMapping("/get-all")
     public List<Employee> getAllEmployees() {
         return employeeService.getAllEmployees();
+    }
+
+    @GetMapping("/{id}")
+    public Employee getEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
+        return employeeService.getEmployeeById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
+        employeeService.deleteEmployeeById(id);
+    }
+
+    @GetMapping("/salaryHigherThan")
+    public List<Employee> getEmployeesWithSalaryHigherThan(@RequestParam("salary") int salary) {
+        return employeeService.getEmployeesWithSalaryHigherThan(salary);
+    }
+
+    @PostMapping("/")
+    void createEmployees(@RequestBody List<Employee> employees) {
+        employeeService.createEmployees(employees);
+    }
+
+    @PutMapping("/{id}")
+    void editEmployee(@PathVariable int id,
+                      @RequestBody Employee employee) throws EmployeeNotFoundException {
+        employeeService.editEmployee(id, employee);
     }
 }

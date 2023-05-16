@@ -1,6 +1,7 @@
 package ru.skypro.lessons.springboot.weblibrary.service;
 
 import org.springframework.stereotype.Service;
+import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
 import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
 import ru.skypro.lessons.springboot.weblibrary.repository.EmployeeRepository;
 
@@ -19,13 +20,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public int getEmployeeSalarySum() {
-        /*List<Employee> employees = getAllEmployees();
-        int sum = 0;
-        for (Employee employee : employees) {
-           sum += employee.getSalary();
-        }
-        return sum;*/
-        return getAllEmployees().stream().mapToInt(Employee::getSalary).sum();
+        return getAllEmployees().stream()
+                .mapToInt(Employee::getSalary)
+                .sum();
     }
 
     @Override
@@ -44,9 +41,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
         }
         return minEmployee;
-
-        /*int minSalary = getAllEmployees().stream().mapToInt(Employee::getSalary).min().getAsInt();
-        return getAllEmployees().stream().filter(e -> e.getSalary() == minSalary).findFirst().get();*/
     }
 
     @Override
@@ -71,15 +65,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<Employee> getAllAboveAverageSalary() {
         List<Employee> employees = getAllEmployees();
         int avgSalary = employees.stream().mapToInt(Employee::getSalary).sum() / employees.size();
-        /*List<Employee> resultList = new ArrayList<>();
-        for (Employee employee : employees) {
-            if (employee.getSalary() > avgSalary) {
-                resultList.add(employee);
-            }
-        }
-        return resultList;*/
-
-        return employees.stream().filter(e -> e.getSalary() > avgSalary).collect(Collectors.toList());
+        return employees.stream()
+                .filter(e -> e.getSalary() > avgSalary)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -87,4 +75,28 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.getAllEmployees();
     }
 
+    @Override
+    public void createEmployees(List<Employee> employees) {
+        employeeRepository.createEmployees(employees);
+    }
+
+    @Override
+    public void editEmployee(int id, Employee employee) throws EmployeeNotFoundException {
+        employeeRepository.editEmployee(id, employee);
+    }
+
+    @Override
+    public Employee getEmployeeById(int id) throws EmployeeNotFoundException {
+        return employeeRepository.getEmployeeById(id);
+    }
+
+    @Override
+    public void deleteEmployeeById(int id) throws EmployeeNotFoundException {
+        employeeRepository.deleteEmployeeById(id);
+    }
+
+    @Override
+    public List<Employee> getEmployeesWithSalaryHigherThan(int salary) {
+        return employeeRepository.getEmployeesWithSalaryHigherThan(salary);
+    }
 }
