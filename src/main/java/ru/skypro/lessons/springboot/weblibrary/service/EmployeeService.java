@@ -1,22 +1,30 @@
 package ru.skypro.lessons.springboot.weblibrary.service;
 
+import ru.skypro.lessons.springboot.weblibrary.dto.EmployeeDTO;
 import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
-import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
 
 import java.util.List;
 
 public interface EmployeeService {
 
     int getEmployeeSalarySum();
-    Employee getMinSalaryEmployee();
-    Employee getMaxSalaryEmployee();
-    List<Employee> getAllAboveAverageSalary();
-    List<Employee> getAllEmployees();
+    EmployeeDTO getMinSalaryEmployee();
+    EmployeeDTO getMaxSalaryEmployee();
+    List<EmployeeDTO> getAllAboveAverageSalary();
+    List<EmployeeDTO> getEmployees();
 
-    void createEmployees(List<Employee> employees);
-    void editEmployee(int id, Employee employee) throws EmployeeNotFoundException;
-    Employee getEmployeeById(int id) throws EmployeeNotFoundException;
+    void createEmployees(List<EmployeeDTO> employee);
+    void editEmployee(int id, EmployeeDTO employee) throws EmployeeNotFoundException;
+    EmployeeDTO getEmployeeById(int id) throws EmployeeNotFoundException;
     void deleteEmployeeById(int id) throws EmployeeNotFoundException;
-    List<Employee> getEmployeesWithSalaryHigherThan(int salary);
+    List<EmployeeDTO> getEmployeesWithSalaryHigherThan(int salary);
+
+    List<EmployeeDTO> getMaxSalaryEmployees();
+
+    List<EmployeeDTO> getEmployeesByPosition(String position);
+
+    List<EmployeeDTO> getEmployeesByPage(int pageIndex, int unitPerPage);
+
+
 
 }

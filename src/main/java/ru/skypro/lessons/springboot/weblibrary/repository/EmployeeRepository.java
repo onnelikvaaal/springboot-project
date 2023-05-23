@@ -1,17 +1,19 @@
 package ru.skypro.lessons.springboot.weblibrary.repository;
 
-import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
-import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import ru.skypro.lessons.springboot.weblibrary.entity.Employee;
+import ru.skypro.lessons.springboot.weblibrary.entity.Position;
 
 import java.util.List;
 
-public interface EmployeeRepository {
-    List<Employee> getAllEmployees();
+public interface EmployeeRepository extends CrudRepository<Employee, Integer> {
+    List<Employee> findEmployeesBySalaryGreaterThan(int salary);
 
-    void createEmployees(List<Employee> employees);
-    void editEmployee(int id, Employee employee) throws EmployeeNotFoundException;
-    Employee getEmployeeById(int id) throws EmployeeNotFoundException;
-    void deleteEmployeeById(int id) throws EmployeeNotFoundException;
-    List<Employee> getEmployeesWithSalaryHigherThan(int salary);
+    @Query(value = "SELECT * FROM employee ORDER BY salary DESC LIMIT 3",
+            nativeQuery = true)
+    List<Employee> getMaxSalaryEmployees();
+
+    List<Employee> findAllByPosition(Position position);
 }
 

@@ -1,11 +1,11 @@
 ### Получение суммы зарплат сотрудников
-GET http://localhost:8080/employee/salary/sum
+GET http://localhost:8080/employeePojo/salary/sum
 
 ### Получение сотрудника с минимальной зарплатой
-GET http://localhost:8080/employee/salary/min
+GET http://localhost:8080/employeePojo/salary/min
 
 ### Получение сотрудника с максимальной зарплатой
-GET http://localhost:8080/employee/salary/max
+GET http://localhost:8080/employeePojo/salary/max
 
 ### Получение всех сотрудников, зарплата которых больше средней
-GET http://localhost:8080/employee/high-salary
+GET http://localhost:8080/employeePojo/high-salary

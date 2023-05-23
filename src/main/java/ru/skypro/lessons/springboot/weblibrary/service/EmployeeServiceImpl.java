@@ -1,10 +1,18 @@
 package ru.skypro.lessons.springboot.weblibrary.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.skypro.lessons.springboot.weblibrary.dto.EmployeeDTO;
+import ru.skypro.lessons.springboot.weblibrary.entity.Employee;
+import ru.skypro.lessons.springboot.weblibrary.entity.Position;
 import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
-import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
+import ru.skypro.lessons.springboot.weblibrary.repository.EmployeePagingRepository;
 import ru.skypro.lessons.springboot.weblibrary.repository.EmployeeRepository;
+import ru.skypro.lessons.springboot.weblibrary.repository.PositionRepository;
+import ru.skypro.lessons.springboot.weblibrary.transformer.EmployeeTransformer;
 
+import java.awt.print.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,9 +21,18 @@ import java.util.stream.Collectors;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final PositionRepository positionRepository;
+    private final EmployeePagingRepository employeePagingRepository;
+    private final EmployeeTransformer employeeTransformer;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+                               PositionRepository positionRepository,
+                               EmployeePagingRepository employeePagingRepository,
+                               EmployeeTransformer employeeTransformer) {
         this.employeeRepository = employeeRepository;
+        this.positionRepository = positionRepository;
+        this.employeePagingRepository = employeePagingRepository;
+        this.employeeTransformer = employeeTransformer;
     }
 
     @Override
@@ -26,7 +43,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee getMinSalaryEmployee() {
+    public EmployeeDTO getMinSalaryEmployee() {
         List<Employee> employees = getAllEmployees();
         int min = Integer.MAX_VALUE;
         for (Employee employee : employees) {
@@ -40,11 +57,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 minEmployee = employee;
             }
         }
-        return minEmployee;
+        return employeeTransformer.toEmployeeDTO(minEmployee);
     }
 
     @Override
-    public Employee getMaxSalaryEmployee() {
+    public EmployeeDTO getMaxSalaryEmployee() {
         List<Employee> employees = getAllEmployees();
         int max = 0;
         for (Employee employee : employees) {
@@ -58,45 +75,95 @@ public class EmployeeServiceImpl implements EmployeeService {
                 maxEmployee = employee;
             }
         }
-        return maxEmployee;
+        return employeeTransformer.toEmployeeDTO(maxEmployee);
     }
 
     @Override
-    public List<Employee> getAllAboveAverageSalary() {
+    public List<EmployeeDTO> getAllAboveAverageSalary() {
         List<Employee> employees = getAllEmployees();
         int avgSalary = employees.stream().mapToInt(Employee::getSalary).sum() / employees.size();
         return employees.stream()
                 .filter(e -> e.getSalary() > avgSalary)
+                .map(employeeTransformer::toEmployeeDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.getAllEmployees();
+    public List<EmployeeDTO> getEmployees() {
+        return getAllEmployees().stream()
+                .map(employeeTransformer::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    private List<Employee> getAllEmployees() {//приватный метод для получения списка энтитей внутри других методов
+        return (List<Employee>) employeeRepository.findAll();//через приведение
     }
 
     @Override
-    public void createEmployees(List<Employee> employees) {
-        employeeRepository.createEmployees(employees);
+    public void createEmployees(List<EmployeeDTO> employeeDTOs) {
+        List<Employee> employeeList = new ArrayList<>();
+        for (EmployeeDTO employeeDTO : employeeDTOs) {
+            Position position = positionRepository.findByName(employeeDTO.getPosition());
+            Employee employee = employeeTransformer.toEmployee(employeeDTO, position);
+            employeeList.add(employee);
+        }
+        employeeRepository.saveAll(employeeList);
     }
 
     @Override
-    public void editEmployee(int id, Employee employee) throws EmployeeNotFoundException {
-        employeeRepository.editEmployee(id, employee);
+    public void editEmployee(int id, EmployeeDTO employeeDTO) throws EmployeeNotFoundException {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found!"));
+        employee.setName(employeeDTO.getName());
+        employee.setSalary(employeeDTO.getSalary());
+        Position position = positionRepository.findByName(employeeDTO.getPosition());
+        employee.setPosition(position);
+        employeeRepository.save(employee);
     }
 
     @Override
-    public Employee getEmployeeById(int id) throws EmployeeNotFoundException {
-        return employeeRepository.getEmployeeById(id);
+    public EmployeeDTO getEmployeeById(int id) throws EmployeeNotFoundException {
+        return employeeRepository.findById(id)
+                .map(employeeTransformer::toEmployeeDTO)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found!"));
     }
 
     @Override
-    public void deleteEmployeeById(int id) throws EmployeeNotFoundException {
-        employeeRepository.deleteEmployeeById(id);
+    public void deleteEmployeeById(int id) {
+        employeeRepository.deleteById(id);
     }
 
     @Override
-    public List<Employee> getEmployeesWithSalaryHigherThan(int salary) {
-        return employeeRepository.getEmployeesWithSalaryHigherThan(salary);
+    public List<EmployeeDTO> getEmployeesWithSalaryHigherThan(int salary) {
+        return employeeRepository.findEmployeesBySalaryGreaterThan(salary).stream()
+                .map(employeeTransformer::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmployeeDTO> getMaxSalaryEmployees() {
+       return employeeRepository.getMaxSalaryEmployees().stream()
+               .map(employeeTransformer::toEmployeeDTO)
+               .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmployeeDTO> getEmployeesByPosition(String position) {
+        if (position == null || position.isBlank()) {
+            return getEmployees();
+        }
+        Position positionEntity = positionRepository.findByName(position);
+        return employeeRepository.findAllByPosition(positionEntity).stream()
+                .map(employeeTransformer::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmployeeDTO> getEmployeesByPage(int pageIndex, int unitPerPage) {
+        PageRequest page = PageRequest.of(pageIndex, unitPerPage);
+        Page<Employee> employeePage = employeePagingRepository.findAll(page);
+        return employeePage.stream()
+                .map(employeeTransformer::toEmployeeDTO)
+                .collect(Collectors.toList());
     }
 }
