@@ -1,8 +1,8 @@
 package ru.skypro.lessons.springboot.weblibrary.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.lessons.springboot.weblibrary.dto.EmployeeDTO;
 import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
-import ru.skypro.lessons.springboot.weblibrary.pojo.Employee;
 import ru.skypro.lessons.springboot.weblibrary.service.EmployeeService;
 
 import java.util.List;
@@ -23,27 +23,27 @@ public class EmployeeController {
     }
 
     @GetMapping("/salary/min")
-    public Employee getMinSalaryEmployee() {
+    public EmployeeDTO getMinSalaryEmployee() {
         return employeeService.getMinSalaryEmployee();
     }
 
     @GetMapping("/salary/max")
-    public Employee getMaxSalaryEmployee() {
+    public EmployeeDTO getMaxSalaryEmployee() {
         return employeeService.getMaxSalaryEmployee();
     }
 
     @GetMapping("/high-salary")
-    public List<Employee> getAllAboveAverageSalary() {
+    public List<EmployeeDTO> getAllAboveAverageSalary() {
         return employeeService.getAllAboveAverageSalary();
     }
 
     @GetMapping("/get-all")
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeService.getEmployees();
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
+    public EmployeeDTO getEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
         return employeeService.getEmployeeById(id);
     }
 
@@ -53,18 +53,39 @@ public class EmployeeController {
     }
 
     @GetMapping("/salaryHigherThan")
-    public List<Employee> getEmployeesWithSalaryHigherThan(@RequestParam("salary") int salary) {
+    public List<EmployeeDTO> getEmployeesWithSalaryHigherThan(@RequestParam("salary") int salary) {
         return employeeService.getEmployeesWithSalaryHigherThan(salary);
     }
 
     @PostMapping("/")
-    void createEmployees(@RequestBody List<Employee> employees) {
-        employeeService.createEmployees(employees);
+    void createEmployees(@RequestBody List<EmployeeDTO> employeeDTOs) {
+        employeeService.createEmployees(employeeDTOs);
     }
 
     @PutMapping("/{id}")
     void editEmployee(@PathVariable int id,
-                      @RequestBody Employee employee) throws EmployeeNotFoundException {
-        employeeService.editEmployee(id, employee);
+                      @RequestBody EmployeeDTO employeeDTO) throws EmployeeNotFoundException {
+        employeeService.editEmployee(id, employeeDTO);
+    }
+
+    @GetMapping("/withHighestSalary")
+    public List<EmployeeDTO> getMaxSalaryEmployees() {
+        return employeeService.getMaxSalaryEmployees();
+    }
+
+    @GetMapping("/")
+    public List<EmployeeDTO> getEmployeesByPosition(@RequestParam(name = "position", required = false) String position) {
+        return employeeService.getEmployeesByPosition(position);
+    }
+
+    @GetMapping("/{id}/fullInfo")
+    public EmployeeDTO getFullInfoEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
+        return employeeService.getEmployeeById(id);
+    }
+
+    @GetMapping("/page")
+    public List<EmployeeDTO> getEmployeesByPage(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+        return employeeService.getEmployeesByPage(page, size);
     }
 }
