@@ -1,8 +1,10 @@
 package ru.skypro.lessons.springboot.weblibrary.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.lessons.springboot.weblibrary.dto.EmployeeDTO;
 import ru.skypro.lessons.springboot.weblibrary.exceptions.EmployeeNotFoundException;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface EmployeeService {
@@ -24,6 +26,8 @@ public interface EmployeeService {
     List<EmployeeDTO> getEmployeesByPosition(String position);
 
     List<EmployeeDTO> getEmployeesByPage(int pageIndex, int unitPerPage);
+
+    void createEmployeesByFile(MultipartFile file) throws IOException;
 
 
 
