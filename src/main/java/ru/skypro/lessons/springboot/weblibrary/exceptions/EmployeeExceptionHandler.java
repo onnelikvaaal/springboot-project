@@ -16,6 +16,11 @@ public class EmployeeExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<?> handleReportException(ReportNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<?> handleException(Exception exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }

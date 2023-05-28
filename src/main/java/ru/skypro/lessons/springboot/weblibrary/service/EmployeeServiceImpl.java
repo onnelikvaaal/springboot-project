@@ -1,8 +1,11 @@
 package ru.skypro.lessons.springboot.weblibrary.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.lessons.springboot.weblibrary.dto.EmployeeDTO;
 import ru.skypro.lessons.springboot.weblibrary.entity.Employee;
 import ru.skypro.lessons.springboot.weblibrary.entity.Position;
@@ -12,7 +15,8 @@ import ru.skypro.lessons.springboot.weblibrary.repository.EmployeeRepository;
 import ru.skypro.lessons.springboot.weblibrary.repository.PositionRepository;
 import ru.skypro.lessons.springboot.weblibrary.transformer.EmployeeTransformer;
 
-import java.awt.print.Pageable;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -165,5 +169,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeePage.stream()
                 .map(employeeTransformer::toEmployeeDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void createEmployeesByFile(MultipartFile file) throws IOException {
+        String fileString = new String(file.getBytes(), StandardCharsets.UTF_8);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        CollectionType javaType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, EmployeeDTO.class);//конструкция для чтения коллекции из json
+
+        List<EmployeeDTO> employeeDTOList = objectMapper.readValue(fileString, javaType);
+        createEmployees(employeeDTOList);
     }
 }
