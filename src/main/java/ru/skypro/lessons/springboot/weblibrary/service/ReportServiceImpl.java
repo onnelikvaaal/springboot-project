@@ -2,6 +2,8 @@ package ru.skypro.lessons.springboot.weblibrary.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.skypro.lessons.springboot.weblibrary.entity.Employee;
 import ru.skypro.lessons.springboot.weblibrary.entity.Position;
@@ -19,9 +21,11 @@ import java.util.List;
 @Service
 public class ReportServiceImpl implements ReportService {
 
+    private static final Logger log = LoggerFactory.getLogger(ReportServiceImpl.class);
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
     private final ReportRepository reportRepository;
+
 
     public ReportServiceImpl(EmployeeRepository employeeRepository,
                              PositionRepository positionRepository,
@@ -33,10 +37,13 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public int createReport() throws JsonProcessingException {
+        log.info("Create report method is invoked");
         List<Position> positions = (List<Position>) positionRepository.findAll();
+        log.debug("Successfully found all positions from DB");
         List<PositionReportPojo> pojoList = new ArrayList<>();
         for (Position position : positions) {
             List<Employee> employees = employeeRepository.findAllByPosition(position);
+            log.debug("Successfully found all employees by position {}", position.getName());
 
             //calculate employees
             int numberOfEmployees = employees.size();
@@ -67,20 +74,34 @@ public class ReportServiceImpl implements ReportService {
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(pojoList);
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(pojoList);
+        } catch (JsonProcessingException e) {
+            log.error("Could not process report to JSON", e);
+            throw e;
+        }
 
         Report report = new Report();
         report.setReportData(json);
         report.setReportDate(new Date());
 
         Report savedReport = reportRepository.save(report);
+        log.debug("Successfully saved report to DB");
         return savedReport.getId();
     }
 
     @Override
     public String getReportJsonString(int id) throws ReportNotFoundException {
-        Report report = reportRepository.findById(id)
+        log.info("Get report JSON string method is invoked");
+        try {
+            Report report = reportRepository.findById(id)
                 .orElseThrow(() -> new ReportNotFoundException("Report not found!"));
-        return report.getReportData();
+            log.debug("Successfully found report by id = {}", id);
+            return report.getReportData();
+        } catch (ReportNotFoundException e) {
+            log.error("Could not find report by id = {}", id, e);
+            throw e;
+        }
     }
 }
