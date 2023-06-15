@@ -1,0 +1,109 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="1" author="sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="employee"/>
+            </not>
+        </preConditions>
+        <createTable tableName="employee">
+           <column name="id" type="integer" autoIncrement="true">
+               <constraints primaryKey="true" primaryKeyName="employee_pk"/>
+           </column>
+           <column name="name" type="varchar">
+               <constraints nullable="false"/>
+           </column>
+           <column name="salary" type="integer">
+               <constraints nullable="false"/>
+           </column>
+           <column name="position_id" type="integer">
+               <constraints nullable="false"/>
+           </column>
+       </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="position"/>
+            </not>
+        </preConditions>
+        <createTable tableName="position">
+            <column name="id" type="integer" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="position_pk"/>
+            </column>
+            <column name="name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="sasha">
+        <addForeignKeyConstraint baseTableName="employee" baseColumnNames="position_id"
+                                 constraintName="employee_position_fk" referencedTableName="position"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="4" author="sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="report"/>
+            </not>
+        </preConditions>
+        <createTable tableName="report">
+            <column name="id" type="integer" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="report_pk"/>
+            </column>
+            <column name="report_data" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="report_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5" author="sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="authorities"/>
+            </not>
+        </preConditions>
+        <createTable tableName="authorities">
+            <column name="username" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6" author="sasha">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="username" type="varchar">
+                <constraints primaryKey="true" primaryKeyName="users_pk"/>
+            </column>
+            <column name="password" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="7" author="sasha">
+        <addForeignKeyConstraint baseTableName="authorities" baseColumnNames="username"
+                                 constraintName="users_authorities_fk" referencedTableName="users"
+                                 referencedColumnNames="username"/>
+    </changeSet>
+</databaseChangeLog>
