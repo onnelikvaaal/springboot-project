@@ -15,7 +15,7 @@ import java.util.Date;
 public class Report {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String reportData;
     private Date reportDate;

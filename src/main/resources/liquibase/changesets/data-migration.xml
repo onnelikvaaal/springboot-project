@@ -1,0 +1,52 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="8" author="sasha">
+        <sql dbms="postgresql">
+            INSERT INTO position (id, name) VALUES
+                                                (1, 'Human'),
+                                                (2, 'Elf'),
+                                                (3, 'Hobbit'),
+                                                (4, 'Dwarf');
+        </sql>
+    </changeSet>
+
+    <changeSet id="9" author="sasha">
+        <sql dbms="postgresql">
+            INSERT INTO employee (id, name, salary, position_id) VALUES
+                                                                     (1, 'Frodo Baggins', 500, 3),
+                                                                     (2, 'Samwise Gamgee', 300, 3),
+                                                                     (3, 'Gollum', 20, 3),
+                                                                     (4, 'Legolas', 1000, 2),
+                                                                     (5, 'Gimly', 900, 4),
+                                                                     (6, 'Aragorn', 480, 1);
+        </sql>
+    </changeSet>
+
+    <changeSet id="10" author="sasha">
+        <sql dbms="postgresql">
+            INSERT INTO users (username, password, enabled) VALUES
+                                                                ('sasha', '{bcrypt}$2a$10$yaAC9rolVd7gPy0DQ01ZUuA3OnBUVTgD1FnMXJTE5nZIinM3gSH9G', 1),
+                                                                ('admin', '{bcrypt}$2a$10$jq2bhuijEPITSnuD06xWle06LuZ6iKXvV4YzojtcNBm7uS91q/Jz2', 1);
+        </sql>
+    </changeSet>
+    
+    <changeSet id="11" author="sasha">
+        <insert tableName="authorities">
+            <column name="username" value="sasha"/>
+            <column name="authority" value="ROLE_USER"/>
+        </insert>
+        <insert tableName="authorities">
+            <column name="username" value="admin"/>
+            <column name="authority" value="ROLE_USER"/>
+        </insert>
+        <insert tableName="authorities">
+            <column name="username" value="admin"/>
+            <column name="authority" value="ROLE_ADMIN"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
