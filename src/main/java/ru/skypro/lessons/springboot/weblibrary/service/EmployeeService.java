@@ -18,7 +18,7 @@ public interface EmployeeService {
     void createEmployees(List<EmployeeDTO> employee);
     void editEmployee(int id, EmployeeDTO employee) throws EmployeeNotFoundException;
     EmployeeDTO getEmployeeById(int id) throws EmployeeNotFoundException;
-    void deleteEmployeeById(int id) throws EmployeeNotFoundException;
+    void deleteEmployeeById(int id);
     List<EmployeeDTO> getEmployeesWithSalaryHigherThan(int salary);
 
     List<EmployeeDTO> getMaxSalaryEmployees();

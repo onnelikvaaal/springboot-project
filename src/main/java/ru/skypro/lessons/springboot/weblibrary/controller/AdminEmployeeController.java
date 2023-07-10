@@ -20,7 +20,7 @@ public class AdminEmployeeController {
 
 
     @DeleteMapping("/{id}")
-    public void deleteEmployeeById(@PathVariable int id) throws EmployeeNotFoundException {
+    public void deleteEmployeeById(@PathVariable int id) {
         employeeService.deleteEmployeeById(id);
     }
 
